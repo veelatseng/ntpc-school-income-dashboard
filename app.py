@@ -381,20 +381,26 @@ def summarize_school_year(income_year: pd.DataFrame, zones: pd.DataFrame, zone_t
     )
 
     def one_school(group: pd.DataFrame) -> pd.Series:
-        matched = group[group["_merge"] == "both"].drop_duplicates(["年度", "行政區", "村里"])
+        level, district, school_name = group.name
+        matched = group[group["_merge"] == "both"].copy()
+        matched = matched.drop_duplicates(
+            [col for col in ["年度", "行政區", "村里"] if col in matched.columns]
+        )
         total_tax = matched["納稅單位(戶)"].sum()
         total_income = matched["綜合所得總額"].sum()
         avg_income = (total_income / total_tax / 10) if total_tax else float("nan")
         median_est = weighted_median_estimate(matched) if not matched.empty else float("nan")
+        zone_count = group[["村里"]].drop_duplicates().shape[0]
+        matched_zone_count = matched[["村里"]].drop_duplicates().shape[0]
         return pd.Series(
             {
                 "學年度": group["學年度"].iloc[0],
-                "學制": group["學制"].iloc[0],
-                "行政區": group["行政區"].iloc[0],
-                "學校名稱": group["學校名稱"].iloc[0],
+                "學制": level,
+                "行政區": district,
+                "學校名稱": school_name,
                 "納稅單位(戶)": total_tax,
-                "學區里數": group[["行政區", "村里"]].drop_duplicates().shape[0],
-                "可對應里數": matched[["行政區", "村里"]].drop_duplicates().shape[0],
+                "學區里數": zone_count,
+                "可對應里數": matched_zone_count,
                 "未對應里數": (group["_merge"] != "both").sum(),
                 "平均所得_萬元": avg_income,
                 "中位數估算_萬元": median_est,
