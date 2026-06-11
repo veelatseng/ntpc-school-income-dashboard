@@ -231,6 +231,12 @@ def add_design_system():
           background: #172033;
           color: var(--od-ink);
         }
+        div[data-testid="stSpinner"] {
+          color: var(--od-accent);
+        }
+        div[data-testid="stSpinner"] > div {
+          border-color: var(--od-accent) transparent transparent transparent;
+        }
         div[data-testid="stTabs"] button {
           font-weight: 650;
         }
@@ -785,14 +791,15 @@ def main():
         st.error("找不到收入 CSV。請確認 school/*_165-F.csv 存在。")
         return
 
+    render_header(income, zones)
     latest_year = int(income["年度"].max())
     latest_income = income[income["年度"] == latest_year]
-    basic_summary = add_ranks(summarize_school_year(latest_income, zones, [BASIC_ZONE]))
-    optional_summary = add_ranks(
-        summarize_school_year(latest_income, zones, [BASIC_ZONE] + OPTIONAL_ZONES)
-    )
+    with st.spinner("正在更新收入排序與學校資料..."):
+        basic_summary = add_ranks(summarize_school_year(latest_income, zones, [BASIC_ZONE]))
+        optional_summary = add_ranks(
+            summarize_school_year(latest_income, zones, [BASIC_ZONE] + OPTIONAL_ZONES)
+        )
 
-    render_header(income, zones)
     render_rankings(basic_summary, optional_summary)
     st.divider()
     render_school_detail(income, zones, basic_summary)
