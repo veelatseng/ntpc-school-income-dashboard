@@ -568,8 +568,6 @@ def render_rankings(basic_summary: pd.DataFrame, optional_summary: pd.DataFrame)
                     continue
                 row_limit = 10 if selected_district == "全新北" else len(scoped)
                 st.caption(f"口徑：{avg_basis}，共 {len(scoped):,} 所{level}可排序")
-                if avg_basis != "基本學區":
-                    st.caption("含自由/共同學區，僅供參考。")
                 table = scoped.nlargest(row_limit, "平均所得_萬元")[
                     ["平均所得排名", "行政區", "學校名稱", "平均所得_萬元", "納稅單位(戶)", "可對應里數"]
                 ].rename(columns={"平均所得排名": "排名"}).copy()
@@ -590,8 +588,6 @@ def render_rankings(basic_summary: pd.DataFrame, optional_summary: pd.DataFrame)
                     continue
                 row_limit = 10 if selected_district == "全新北" else len(scoped)
                 st.caption(f"口徑：{median_basis}，共 {len(scoped):,} 所{level}可排序")
-                if median_basis != "基本學區":
-                    st.caption("含自由/共同學區，僅供參考。")
                 table = scoped.nlargest(row_limit, "中位數估算_萬元")[
                     ["中位數估算排名", "行政區", "學校名稱", "中位數估算_萬元", "納稅單位(戶)", "可對應里數"]
                 ].rename(columns={"中位數估算排名": "排名"}).copy()
